@@ -1,6 +1,6 @@
 {
   "name": "covid19-api",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
@@ -10,5 +10,25 @@
     "debug": "~2.6.9",
     "express": "~4.16.1",
     "morgan": "~1.9.1"
-  }
+  },
+  "description": "api.covid19.budidev.com",
+  "main": "app.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/budimanfajarf/covid19-api.git"
+  },
+  "keywords": [
+    "covid19",
+    "rest",
+    "api",
+    "node",
+    "express"
+  ],
+  "author": "budimanfajarf",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/budimanfajarf/covid19-api/issues"
+  },
+  "homepage": "https://github.com/budimanfajarf/covid19-api#readme"
 }
