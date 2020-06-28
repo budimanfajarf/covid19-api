@@ -1,69 +1,43 @@
 const covid19Api = require('../apis/covid19api.com');
 
+calculatePercentOf = (number, ofNumber) => {
+  return Math.round((number/ofNumber)*100);
+};
+
 appendData = (confirmed, deaths, recovered) => {
-  const closedCases = deaths+recovered;
-  const activeCases = confirmed-closedCases;
-  const percentRecovered = Math.round((recovered/closedCases)*100);
-  const percentDeaths = Math.round((deaths/closedCases)*100);  
-  return { closedCases, activeCases, percentRecovered, percentDeaths };  
+  const ClosedCases = deaths+recovered;
+  const ActiveCases = confirmed-ClosedCases;
+  const PercentRecovered = calculatePercentOf(recovered, ClosedCases);
+  const PercentDeaths = calculatePercentOf(deaths, ClosedCases);  
+  return { ClosedCases, ActiveCases, PercentRecovered, PercentDeaths };  
 }
 
-remapGlobal = (data) => {
-  const { TotalConfirmed, TotalDeaths, TotalRecovered, NewConfirmed, NewDeaths, NewRecovered } = data;
-  const appendTotal = appendData(TotalConfirmed, TotalDeaths, TotalRecovered);  
-  const appendNew = appendData(NewConfirmed, NewDeaths, NewRecovered);
-  return { 
-    TotalConfirmed, 
-    TotalRecovered, 
-    TotalDeaths, 
-    TotalClosedCases: appendTotal.closedCases, 
-    TotalActiveCases: appendTotal.activeCases, 
-    PercentTotalRecovered: appendTotal.percentRecovered, 
-    PercentTotalDeaths: appendTotal.percentDeaths,
-    NewConfirmed, 
-    NewDeaths,
-    NewRecovered,
-    NewClosedCases: appendNew.closedCases, 
-    NewActiveCases: appendNew.activeCases, 
-    PercentNewRecovered: appendNew.percentRecovered, 
-    PercentNewDeaths: appendNew.percentDeaths,    
-  };
-}
+remapData = (data) => {
+  const { Country, CountryCode, Slug, Date } = data;
+  const { TotalConfirmed, TotalDeaths, TotalRecovered } = data;
+  const { ClosedCases, ActiveCases, PercentRecovered, PercentDeaths } = appendData(TotalConfirmed, TotalDeaths, TotalRecovered);  
+  const { NewConfirmed, NewRecovered, NewDeaths } = data;
 
-remapCountry = (data) => {
-  const { Country, CountryCode, Slug, Date, TotalConfirmed, TotalDeaths, TotalRecovered, NewConfirmed, NewDeaths, NewRecovered } = data;
-  const appendTotal = appendData(TotalConfirmed, TotalDeaths, TotalRecovered);  
-  const appendNew = appendData(NewConfirmed, NewDeaths, NewRecovered);
-  return { 
-    Country,
-    CountryCode,
-    Slug,
-    TotalConfirmed, 
-    TotalRecovered, 
-    TotalDeaths, 
-    TotalClosedCases: appendTotal.closedCases, 
-    TotalActiveCases: appendTotal.activeCases, 
-    PercentTotalRecovered: appendTotal.percentRecovered, 
-    PercentTotalDeaths: appendTotal.percentDeaths,
-    NewConfirmed, 
-    NewDeaths,
-    NewRecovered,
-    NewClosedCases: appendNew.closedCases, 
-    NewActiveCases: appendNew.activeCases, 
-    PercentNewRecovered: appendNew.percentRecovered, 
-    PercentNewDeaths: appendNew.percentDeaths,    
-    Date
-  };
+  let mapedData = {};
+
+  if (Country)
+    mapedData = Object.assign(mapedData, { Country, CountryCode, Slug });
+
+  mapedData = Object.assign(mapedData, { TotalConfirmed, TotalRecovered, TotalDeaths, ClosedCases, ActiveCases, PercentRecovered, PercentDeaths });
+  mapedData = Object.assign(mapedData, { NewConfirmed, NewRecovered, NewDeaths });
+
+  if (Date)
+    mapedData = Object.assign(mapedData, { Date });
+
+  return mapedData;
 }
 
 getSummary = async (req, res, next) => {
   const { Global, Countries } = await covid19Api.getSummary();
 
-  console.log('req.query', req.query);
-
-  const newGlobal = remapGlobal(Global);  
+  const newGlobal = remapData(Global);  
   const newCountries = Countries.map((country) => {
-    const newCountry = remapCountry(country);
+    const newCountry = remapData(country);
     return newCountry;
   });
 
@@ -75,7 +49,7 @@ getSummary = async (req, res, next) => {
 
 getGlobal = async (req, res, next) => {
   const { Global } = await covid19Api.getSummary();
-  const newGlobal = remapGlobal(Global);
+  const newGlobal = remapData(Global);
 
   res.json(newGlobal);  
 };
@@ -83,7 +57,7 @@ getGlobal = async (req, res, next) => {
 getCountries = async (req, res, next) => {
   const { Countries } = await covid19Api.getSummary();
   const newCountries = Countries.map((country) => {
-    const newCountry = remapCountry(country);
+    const newCountry = remapData(country);
     return newCountry;
   });
 
@@ -93,15 +67,12 @@ getCountries = async (req, res, next) => {
 getSpecifyCountry = async (req, res, next) => {
   const { Countries } = await covid19Api.getSummary();
   const slug = req.params.slug;
-  const newCountries = Countries.map((country) => {
-    const newCountry = remapCountry(country);
-    return newCountry;
-  });
-  const filterCountries = newCountries.filter((country) => {
+  const filteredCountries = Countries.filter((country) => {
     return country.Slug == slug;
   });
+  const newsCountry = remapData(filteredCountries[0]);
 
-  res.json(filterCountries[0]);
+  res.json(newsCountry);
 }
 
 module.exports.getSummary = getSummary;
