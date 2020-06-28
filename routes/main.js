@@ -21,4 +21,9 @@ router.get('/summary', async (req, res, next) => {
   res.json(summary);
 });
 
+router.get('/global', async (req, res, next) => {
+  const global = await covid19Api.getGlobal();
+  res.json(global);
+});
+
 module.exports = router;

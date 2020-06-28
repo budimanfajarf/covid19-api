@@ -7,4 +7,9 @@ router.get('/', async (req, res, next) => {
   res.send(countries);
 }); 
 
+router.get('/:slug', async (req, res, next) => {
+  const countries = await covid19Api.getByCountry(req.params.slug);
+  res.send(countries);
+}); 
+
 module.exports = router;

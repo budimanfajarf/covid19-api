@@ -5,60 +5,91 @@ const instance = axios.create({
   headers: { }
 });
 
-function remapData(data) {
-  const { TotalConfirmed, TotalDeaths, TotalRecovered } = data;
+newData = (TotalConfirmed, TotalDeaths, TotalRecovered) => {
   const TotalClosedCases = TotalDeaths+TotalRecovered;
   const TotalActiveCases = TotalConfirmed-TotalClosedCases;
   const PercentRecovered = Math.round((TotalRecovered/TotalClosedCases)*100);
-  const PercentDeaths = Math.round((TotalDeaths/TotalClosedCases)*100);
-
-  return {
-    TotalConfirmed,
-    TotalRecovered,
-    TotalDeaths,
-    TotalClosedCases,
-    TotalActiveCases,
-    PercentRecovered,
-    PercentDeaths
-  };
+  const PercentDeaths = Math.round((TotalDeaths/TotalClosedCases)*100);  
+  return { TotalClosedCases, TotalActiveCases, PercentRecovered, PercentDeaths };  
 }
 
-function getDefault() {
-  return new Promise((resolve, reject) => {
-    instance.get()
-    .then((response) => {
-      resolve((response.data))
-    })
-    .catch((error) => reject(error));    
-  })
+remapGlobal = (data) => {
+  const { TotalConfirmed, TotalDeaths, TotalRecovered } = data;
+  const { TotalClosedCases, TotalActiveCases, PercentRecovered, PercentDeaths } = newData(TotalConfirmed, TotalDeaths, TotalRecovered);
+  return { TotalConfirmed, TotalRecovered, TotalDeaths, TotalClosedCases, TotalActiveCases, PercentRecovered, PercentDeaths};
 }
 
-function getSummary() {
+remapCountry = (data) => {
+  const { TotalConfirmed, TotalDeaths, TotalRecovered, Country, CountryCode, Slug, Date } = data;
+  const { TotalClosedCases, TotalActiveCases, PercentRecovered, PercentDeaths } = newData(TotalConfirmed, TotalDeaths, TotalRecovered);
+  return { Country, CountryCode, Slug, TotalConfirmed, TotalRecovered, TotalDeaths, TotalClosedCases, TotalActiveCases, PercentRecovered, PercentDeaths, Date};
+}
+
+getSummary = () => {
   return new Promise((resolve, reject) => {
     instance.get('/summary')
-    .then((response) => {
-      let data = response.data;
-      let globalData = remapData(data.Global);
-
-      resolve((globalData));
+    .then((res) => {
+      const { Global, Countries } = res.data;
+      const newGlobal = remapGlobal(Global);
+      const newCountries = Countries.map((country) => {
+        const newCountry = remapCountry(country);
+        return newCountry;
+      });
+      resolve({
+        Global: newGlobal,
+        Countries: newCountries
+      });
     })
-    .catch((error) => reject(error));    
+    .catch((err) => reject(err));    
   });
 }
 
-function getCountries() {
+getGlobal = () => {
   return new Promise((resolve, reject) => {
-    resolve({});
+    instance.get('/summary')
+    .then((res) => {
+      const { Global } = res.data;
+      const newGlobal = remapGlobal(Global);
+      resolve(newGlobal);
+    })
+    .catch((err) => reject(err));    
   });
 }
 
-function getByCountry(slug) {
+getCountries = () => {
   return new Promise((resolve, reject) => {
-    resolve({});
-  });  
+    instance.get('/summary')
+    .then((res) => {
+      const { Countries } = res.data;
+      const newCountries = Countries.map((country) => {
+        const newCountry = remapCountry(country);
+        return newCountry;
+      });
+      resolve(newCountries);
+    })
+    .catch((err) => reject(err));    
+  });
 }
 
-module.exports.getDefault = getDefault;
+getByCountry = (slug) => {
+  return new Promise((resolve, reject) => {
+    instance.get('/summary')
+    .then((res) => {
+      const { Countries } = res.data;
+      const newCountries = Countries.map((country) => {
+        const newCountry = remapCountry(country);
+        return newCountry;
+      });
+      const filterCountries = newCountries.filter((country) => {
+        return country.Slug == slug;
+      });
+      resolve(filterCountries[0]);
+    })
+    .catch((err) => reject(err));    
+  });
+}
+
 module.exports.getSummary = getSummary;
+module.exports.getGlobal = getGlobal;
 module.exports.getCountries = getCountries;
 module.exports.getByCountry = getByCountry;
