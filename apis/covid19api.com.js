@@ -29,5 +29,28 @@ getSummaryWithGlobalDate = () => {
   });
 };
 
+getDayOneAllStatus = (slug) => {
+  return new Promise((resolve, reject) => {
+    instance.get(`/dayone/country/${slug}`)
+    .then((res) => {
+      resolve(res.data);
+    })
+    .catch((err) => reject(err));    
+  });
+}
+
+getByCountryAllStatus = (slug, from, to) => {
+  // https://api.covid19api.com/country/south-africa?from=2020-03-01T00:00:00Z&to=2020-04-01T00:00:00Z  
+  return new Promise((resolve, reject) => {
+    instance.get(`/country/${slug}?from=${from}&to=${to}`)
+    .then((res) => {
+      resolve(res.data);
+    })
+    .catch((err) => reject(err));    
+  });  
+}
+
 module.exports.getApiSummary = getSummary;
 module.exports.getApiSummaryWithGlobalDate = getSummaryWithGlobalDate;
+module.exports.getApiDayOneAllStatus = getDayOneAllStatus;
+module.exports.getApiByCountryAllStatus = getByCountryAllStatus;
