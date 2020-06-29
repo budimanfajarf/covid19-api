@@ -15,4 +15,19 @@ getSummary = () => {
   });
 };
 
-module.exports.getSummary = getSummary;
+getSummaryWithGlobalDate = () => {
+  return new Promise((resolve, reject) => {
+    instance.get('/summary')
+    .then((res) => {
+      const globalDate = new Date(Math.max.apply(null, res.data.Countries.map(function(country) {
+        return new Date(country.Date);
+      })));
+      res.data.Global.Date = globalDate;
+      resolve(res.data);
+    })
+    .catch((err) => reject(err));    
+  });
+};
+
+module.exports.getApiSummary = getSummary;
+module.exports.getApiSummaryWithGlobalDate = getSummaryWithGlobalDate;

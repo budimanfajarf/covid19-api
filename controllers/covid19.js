@@ -4,40 +4,45 @@ calculatePercentOf = (number, ofNumber) => {
   return Math.round((number/ofNumber)*100);
 };
 
-appendData = (confirmed, deaths, recovered) => {
-  const ClosedCases = deaths+recovered;
-  const ActiveCases = confirmed-ClosedCases;
-  const PercentRecovered = calculatePercentOf(recovered, ClosedCases);
-  const PercentDeaths = calculatePercentOf(deaths, ClosedCases);  
-  return { ClosedCases, ActiveCases, PercentRecovered, PercentDeaths };  
-}
-
-remapData = (data) => {
+remapCovidData = (data, isCases, isPercent, isNew) => {
+  let covidData = {};
   const { Country, CountryCode, Slug, Date } = data;
   const { TotalConfirmed, TotalDeaths, TotalRecovered } = data;
-  const { ClosedCases, ActiveCases, PercentRecovered, PercentDeaths } = appendData(TotalConfirmed, TotalDeaths, TotalRecovered);  
-  const { NewConfirmed, NewRecovered, NewDeaths } = data;
-
-  let mapedData = {};
 
   if (Country)
-    mapedData = Object.assign(mapedData, { Country, CountryCode, Slug });
+    covidData = Object.assign(covidData, { Country, CountryCode, Slug });
 
-  mapedData = Object.assign(mapedData, { TotalConfirmed, TotalRecovered, TotalDeaths, ClosedCases, ActiveCases, PercentRecovered, PercentDeaths });
-  mapedData = Object.assign(mapedData, { NewConfirmed, NewRecovered, NewDeaths });
+  covidData = Object.assign(covidData, { TotalConfirmed, TotalRecovered, TotalDeaths });
+
+  if (isCases == true || isPercent == 'true') {
+    const TotalClosedCases = TotalDeaths+TotalRecovered;
+    const TotalActiveCases = TotalConfirmed-TotalClosedCases;
+    covidData = Object.assign(covidData, { TotalClosedCases, TotalActiveCases });
+  }
+
+  if (isPercent == true || isPercent == 'true') {
+    const TotalRecoveredPercent = calculatePercentOf(TotalRecovered, (TotalDeaths+TotalRecovered));
+    const TotalDeathsPercent = calculatePercentOf(TotalDeaths, (TotalDeaths+TotalRecovered));     
+    covidData = Object.assign(covidData, { TotalRecoveredPercent, TotalDeathsPercent });    
+  }
+
+  if (isNew == true || isPercent == 'true') {
+    const { NewConfirmed, NewRecovered, NewDeaths } = data;
+    covidData = Object.assign(covidData, { NewConfirmed, NewRecovered, NewDeaths });
+  }
 
   if (Date)
-    mapedData = Object.assign(mapedData, { Date });
+    covidData = Object.assign(covidData, { Date });
 
-  return mapedData;
+  return covidData;
 }
 
 getSummary = async (req, res, next) => {
-  const { Global, Countries } = await covid19Api.getSummary();
+  const { Global, Countries } = await covid19Api.getApiSummaryWithGlobalDate();
 
-  const newGlobal = remapData(Global);  
+  const newGlobal = remapCovidData(Global, true, true, false);  
   const newCountries = Countries.map((country) => {
-    const newCountry = remapData(country);
+    const newCountry = remapCovidData(country, true, true, false);
     return newCountry;
   });
 
@@ -48,16 +53,16 @@ getSummary = async (req, res, next) => {
 };
 
 getGlobal = async (req, res, next) => {
-  const { Global } = await covid19Api.getSummary();
-  const newGlobal = remapData(Global);
+  const { Global } = await covid19Api.getApiSummaryWithGlobalDate();
+  const newGlobal = remapCovidData(Global, req.query.cases, req.query.percent, req.query.new);
 
   res.json(newGlobal);  
 };
 
 getCountries = async (req, res, next) => {
-  const { Countries } = await covid19Api.getSummary();
+  const { Countries } = await covid19Api.getApiSummary();
   const newCountries = Countries.map((country) => {
-    const newCountry = remapData(country);
+    const newCountry = remapCovidData(country, req.query.cases, req.query.percent, req.query.new);
     return newCountry;
   });
 
@@ -65,14 +70,14 @@ getCountries = async (req, res, next) => {
 }
 
 getSpecifyCountry = async (req, res, next) => {
-  const { Countries } = await covid19Api.getSummary();
+  const { Countries } = await covid19Api.getApiSummary();
   const slug = req.params.slug;
   const filteredCountries = Countries.filter((country) => {
     return country.Slug == slug;
   });
-  const newsCountry = remapData(filteredCountries[0]);
+  const newCountry = remapCovidData(filteredCountries[0], req.query.cases, req.query.percent, req.query.new);
 
-  res.json(newsCountry);
+  res.json(newCountry);
 }
 
 module.exports.getSummary = getSummary;
