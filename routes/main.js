@@ -1,19 +1,17 @@
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const router = express.Router();
 const { getSummary, getGlobal } = require('../ext-api/covid19api.com/main');
 
 router.get('/', (req, res, next) => {
-  res.json({
-    Formula: {
-      TotalConfirmed: "Default",
-      TotalDeaths: "Default",
-      TotalRecovered: "Default",
-      TotalClosedCases: "TotalDeaths+TotalRecovered",
-      TotalActiveCases: "TotalConfirmed-TotalClosedCases",      
-      PercentDeaths: "round((TotalDeaths/TotalClosedCases)*100)",
-      PercentRecovered: "round((TotalRecovered/TotalClosedCases)*100)",        
+  fs.readFile(path.join(__dirname, '../info.json'), 'utf8', (err, result) => {
+    if (err)
+      next(err);
+    else {
+      res.json(JSON.parse(result));      
     }
-  });
+  });  
 });
 
 router.get('/summary', async(req, res, next) => {

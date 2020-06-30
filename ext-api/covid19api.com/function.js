@@ -60,7 +60,7 @@ generateCountry = (countryLogs, slug) => {
   });
 
   const sortedNewCountryLogs = newCountryLogs.sort((a,b) => {
-      return new Date(b.Date) - new Date(a.Date);
+      return new Date(b.date) - new Date(a.date);
   });
 
   return {

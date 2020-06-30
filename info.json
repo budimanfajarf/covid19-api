@@ -1,0 +1,35 @@
+{
+  "name": "BDV Simple Covid19-API",
+  "version": "1.0.1",
+  "baseUrl": "https://api.covid19.budidev.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/budimanfajarf/covid19-api.git"
+  },
+  "documentation": {
+    "url": ""
+  },
+  "bugs": {
+    "url": "https://github.com/budimanfajarf/covid19-api/issues"
+  },  
+  "author": {
+    "name": "Budiman Fajar Firdaus / budimanfajarf",
+    "email": "hello@budidev.com",
+    "url": "https://budidev.com"
+  },
+  "dataSource": [
+    {
+      "name": "Coronavirus COVID19 API",
+      "url": "https://covid19api.com/"
+    }
+  ],
+  "mainFormula": {
+    "confirmed": "defaultSource",
+    "recovered": "defaultSource",    
+    "deaths": "defaultSource",
+    "closed": "deaths+recovered",
+    "active": "confirmed-closed",      
+    "recoveredPercent": "(recovered/closed)*100",
+    "deathsPercent": "(deaths/closed)*100"
+  }  
+}
