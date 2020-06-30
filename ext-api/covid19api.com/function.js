@@ -64,17 +64,17 @@ generateCountry = (countryLogs, slug) => {
   });
 
   return {
-    country: sortedNewCountryLogs[0].Country,
-    countryCode: sortedNewCountryLogs[0].CountryCode,
+    country: countryLogs[0].Country,
+    countryCode: countryLogs[0].CountryCode,
     slug,
-    totalConfirmed: sortedNewCountryLogs[0].Confirmed,
-    totalRecovered: sortedNewCountryLogs[0].Recovered,
-    totalDeaths: sortedNewCountryLogs[0].Deaths,        
+    totalConfirmed: sortedNewCountryLogs[0].confirmed,
+    totalRecovered: sortedNewCountryLogs[0].recovered,
+    totalDeaths: sortedNewCountryLogs[0].deaths,        
     totalClosed: sortedNewCountryLogs[0].closed,
     totalActive: sortedNewCountryLogs[0].active,
     totalRecoveredPercent: sortedNewCountryLogs[0].recoveredPercent,
     totalDeathsPercent: sortedNewCountryLogs[0].deathsPercent,                
-    date: sortedNewCountryLogs[0].Date,
+    date: sortedNewCountryLogs[0].date,
     history: sortedNewCountryLogs
   };  
 }
