@@ -59,19 +59,23 @@ generateCountry = (countryLogs, slug) => {
     };
   });
 
+  const sortedNewCountryLogs = newCountryLogs.sort((a,b) => {
+      return new Date(b.Date) - new Date(a.Date);
+  });
+
   return {
-    country: countryLogs[0].Country,
-    countryCode: countryLogs[0].CountryCode,
+    country: sortedNewCountryLogs[0].Country,
+    countryCode: sortedNewCountryLogs[0].CountryCode,
     slug,
-    totalConfirmed: countryLogs[countryLogs.length - 1].Confirmed,
-    totalRecovered: countryLogs[countryLogs.length - 1].Recovered,
-    totalDeaths: countryLogs[countryLogs.length - 1].Deaths,        
-    totalClosed: newCountryLogs[newCountryLogs.length - 1].closed,
-    totalActive: newCountryLogs[newCountryLogs.length - 1].active,
-    totalRecoveredPercent: newCountryLogs[newCountryLogs.length - 1].recoveredPercent,
-    totalDeathsPercent: newCountryLogs[newCountryLogs.length - 1].deathsPercent,                
-    date: countryLogs[countryLogs.length - 1].Date,
-    history: newCountryLogs
+    totalConfirmed: sortedNewCountryLogs[0].Confirmed,
+    totalRecovered: sortedNewCountryLogs[0].Recovered,
+    totalDeaths: sortedNewCountryLogs[0].Deaths,        
+    totalClosed: sortedNewCountryLogs[0].closed,
+    totalActive: sortedNewCountryLogs[0].active,
+    totalRecoveredPercent: sortedNewCountryLogs[0].recoveredPercent,
+    totalDeathsPercent: sortedNewCountryLogs[0].deathsPercent,                
+    date: sortedNewCountryLogs[0].Date,
+    history: sortedNewCountryLogs
   };  
 }
 
