@@ -1,12 +1,12 @@
 const { apiSummary, apiSummaryWithGlobalDate, apiDayOneAllStatus, apiByCountryAllStatus } = require('./default');
-const { remapGlobal, remapCountries, remapCountry } = require('./function');
+const { generateGlobal, generateCountries, generateCountry } = require('./function');
 
 getSummary = () => {
   return new Promise((resolve, reject) => {
     apiSummaryWithGlobalDate()
     .then((data) => {
-      const global = remapGlobal(data.Global);
-      const countries = remapCountries(data.Countries);
+      const global = generateGlobal(data.Global);
+      const countries = generateCountries(data.Countries);
       resolve({
         global,
         countries
@@ -20,7 +20,7 @@ getGlobal = () => {
   return new Promise((resolve, reject) => {
     apiSummaryWithGlobalDate()
     .then((data) => {
-      const global = remapGlobal(data.Global);
+      const global = generateGlobal(data.Global);
       resolve(global);       
     })
     .catch((err) => reject(err));    
@@ -31,7 +31,7 @@ getCountries = () => {
   return new Promise((resolve, reject) => {
     apiSummary()
     .then((data) => {
-      const countries = remapCountries(data.Countries);
+      const countries = generateCountries(data.Countries);
       resolve(countries);       
     })
     .catch((err) => reject(err));     
@@ -44,7 +44,7 @@ getCountry = (slug, from, to) => {
     if (from && to) {
       apiByCountryAllStatus(slug, from, to)
       .then((data) => {
-        country = remapCountry(data, slug);
+        country = generateCountry(data, slug);
         resolve(country);       
       })
       .catch((err) => reject(err));       
@@ -52,7 +52,7 @@ getCountry = (slug, from, to) => {
     else {
       apiDayOneAllStatus(slug)
       .then((data) => {
-        country = remapCountry(data, slug);
+        country = generateCountry(data, slug);
         resolve(country);       
       })
       .catch((err) => reject(err));            
