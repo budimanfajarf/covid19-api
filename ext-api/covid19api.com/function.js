@@ -44,8 +44,8 @@ generateCountries = (countries) => {
   });
 };
 
-generateDetailCountry = (countries, slug) => {
-  const newCountries = countries.map((country) => {
+generateCountry = (countryLogs, slug) => {
+  const newCountryLogs = countryLogs.map((country) => {
     const newData = generateNewData(country.Confirmed, country.Recovered, country.Deaths);
     return {
       confirmed: country.Confirmed,
@@ -60,21 +60,21 @@ generateDetailCountry = (countries, slug) => {
   });
 
   return {
-    country: countries[0].Country,
-    countryCode: countries[0].CountryCode,
+    country: countryLogs[0].Country,
+    countryCode: countryLogs[0].CountryCode,
     slug,
-    totalConfirmed: countries[countries.length - 1].Confirmed,
-    totalRecovered: countries[countries.length - 1].Recovered,
-    totalDeaths: countries[countries.length - 1].Deaths,        
-    totalClosed: newCountries[newCountries.length - 1].closed,
-    totalActive: newCountries[newCountries.length - 1].active,
-    totalRecoveredPercent: newCountries[newCountries.length - 1].recoveredPercent,
-    totalDeathsPercent: newCountries[newCountries.length - 1].deathsPercent,                
-    date: countries[countries.length - 1].Date,
-    history: newCountries
+    totalConfirmed: countryLogs[countryLogs.length - 1].Confirmed,
+    totalRecovered: countryLogs[countryLogs.length - 1].Recovered,
+    totalDeaths: countryLogs[countryLogs.length - 1].Deaths,        
+    totalClosed: newCountryLogs[newCountryLogs.length - 1].closed,
+    totalActive: newCountryLogs[newCountryLogs.length - 1].active,
+    totalRecoveredPercent: newCountryLogs[newCountryLogs.length - 1].recoveredPercent,
+    totalDeathsPercent: newCountryLogs[newCountryLogs.length - 1].deathsPercent,                
+    date: countryLogs[countryLogs.length - 1].Date,
+    history: newCountryLogs
   };  
 }
 
 module.exports.generateGlobal = generateGlobal;
 module.exports.generateCountries = generateCountries;
-module.exports.generateDetailCountry = generateDetailCountry;
+module.exports.generateCountry = generateCountry;
