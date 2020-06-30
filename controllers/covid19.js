@@ -1,24 +1,87 @@
 const covid19Api = require('../apis/covid19api.com');
 
+getSummary = async (req, res, next) => {
+  const { Global, Countries } = await covid19Api.getApiSummaryWithGlobalDate();
+  const newGlobal = generateGlobal(Global);
+  const newCountries = generateCountries(Countries);
+
+  res.json({
+    global: newGlobal,
+    countries: newCountries
+  });
+};
+
+getGlobal = () => {
+  return new Promise((resolve, reject) => {
+    covid19Api.getApiSummaryWithGlobalDate()
+    .then((data) => {
+      const newGlobal = generateGlobal(data.Global);
+      resolve(newGlobal);       
+    })
+    .catch((err) => reject(err));    
+  });
+};
+
+getCountries = async (req, res, next) => {
+  const { Countries } = await covid19Api.getApiSummary();
+  const newCountries = generateCountries(Countries);
+
+  res.json(newCountries);
+}
+
+getSpecifyCountry =  (slug, from, to) => {
+  return new Promise((resolve, reject) => {
+    let specifyCountry;
+  
+    if (from && to) {
+      covid19Api.getApiByCountryAllStatus(slug, from, to)
+      .then((data) => {
+        specifyCountry = generateSpecifyCountry(data, slug);
+        resolve(specifyCountry);       
+      })
+      .catch((err) => reject(err));       
+    }
+    else {
+      covid19Api.getApiDayOneAllStatus(slug)
+      .then((data) => {
+        specifyCountry = generateSpecifyCountry(data, slug);
+        resolve(specifyCountry);       
+      })
+      .catch((err) => reject(err));            
+    } 
+  });
+}
+
 calculatePercentOf = (number, ofNumber) => {
   return Math.round((number/ofNumber)*100);
 };
 
 generateNewData = (confirmed, recovered, deaths) => {
-  console.log(confirmed, recovered, deaths);
   const closed = recovered+deaths;
   const active = confirmed-closed;
   const recoveredPercent = calculatePercentOf(recovered, closed);
   const deathsPercent = calculatePercentOf(deaths, closed);
   
   return { closed, active, recoveredPercent, deathsPercent };
+};
+
+generateGlobal = (global) => {
+  const newData = generateNewData(global.TotalConfirmed, global.TotalRecovered, global.TotalDeaths);
+  return {
+    totalConfirmed: global.TotalConfirmed,
+    totalRecovered: global.TotalRecovered,
+    totalDeaths: global.TotalDeaths,
+    totalClosed: newData.closed,
+    totalActive: newData.active,
+    totalRecoveredPercent: newData.recoveredPercent,
+    totalDeathsPercent: newData.deathsPercent,
+    date: global.Date
+  }  
 }
 
-getSummary = async (req, res, next) => {
-  const { Global, Countries } = await covid19Api.getApiSummaryWithGlobalDate();
-  const newGlobal = generateNewData(Global.TotalConfirmed, Global.TotalRecovered, Global.TotalDeaths);
-  const newCountries = Countries.map((country) => {
-    const newCountry = generateNewData(country.TotalConfirmed, country.TotalRecovered, country.TotalDeaths);
+generateCountries = (countries) => {
+  countries.map((country) => {
+    const newData = generateNewData(country.TotalConfirmed, country.TotalRecovered, country.TotalDeaths);
     return {
       country: country.Country,
       countryCode: country.CountryCode,
@@ -26,96 +89,32 @@ getSummary = async (req, res, next) => {
       totalConfirmed: country.TotalConfirmed,
       totalRecovered: country.TotalRecovered,
       totalDeaths: country.TotalDeaths,
-      totalClosed: newCountry.closed,
-      totalActive: newCountry.active,
-      totalRecoveredPercent: newCountry.recoveredPercent,
-      totalDeathsPercent: newCountry.deathsPercent,
+      totalClosed: newData.closed,
+      totalActive: newData.active,
+      totalRecoveredPercent: newData.recoveredPercent,
+      totalDeathsPercent: newData.deathsPercent,
       date: country.Date      
     };
   });
-
-  res.json({
-    global: {
-      totalConfirmed: Global.TotalConfirmed,
-      totalRecovered: Global.TotalRecovered,
-      totalDeaths: Global.TotalDeaths,
-      totalClosed: newGlobal.closed,
-      totalActive: newGlobal.active,
-      totalRecoveredPercent: newGlobal.recoveredPercent,
-      totalDeathsPercent: newGlobal.deathsPercent,
-      date: Global.Date
-    },
-    countries: newCountries
-  });
+  return countries;
 };
 
-getGlobal = async (req, res, next) => {
-  const { Global } = await covid19Api.getApiSummaryWithGlobalDate();
-  const newGlobal = generateNewData(Global.TotalConfirmed, Global.TotalRecovered, Global.TotalDeaths);
-
-  res.json({
-    totalConfirmed: Global.TotalConfirmed,
-    totalRecovered: Global.TotalConfirmed,
-    totalDeaths: Global.TotalDeaths,
-    totalClosed: newGlobal.closed,
-    totalActive: newGlobal.active,
-    totalRecoveredPercent: newGlobal.recoveredPercent,
-    totalDeathsPercent: newGlobal.deathsPercent,
-    date: Global.Date
-  });
-};
-
-getCountries = async (req, res, next) => {
-  const { Countries } = await covid19Api.getApiSummary();
-  const newCountries = Countries.map((country) => {
-    const newCountry = generateNewData(country.TotalConfirmed, country.TotalRecovered, country.TotalDeaths);
-    return {
-      country: country.Country,
-      countryCode: country.CountryCode,
-      slug: country.Slug,
-      totalConfirmed: country.TotalConfirmed,
-      totalRecovered: country.TotalRecovered,
-      totalDeaths: country.TotalDeaths,
-      totalClosed: newCountry.closed,
-      totalActive: newCountry.active,
-      totalRecoveredPercent: newCountry.recoveredPercent,
-      totalDeathsPercent: newCountry.deathsPercent,
-      date: country.Date      
-    };
-  });
-
-  res.json(newCountries);
-}
-
-getSpecifyCountry = async (req, res, next) => {
-  const slug = req.params.slug;
-  const from = req.query.from || false;
-  const to = req.query.to || false;
-  let countries;
-
-  if (from && to)
-    countries = await covid19Api.getApiByCountryAllStatus(slug, from, to);
-  else
-    countries = await covid19Api.getApiDayOneAllStatus(slug);
-
+generateSpecifyCountry = (countries, slug) => {
   const newCountries = countries.map((country) => {
-    const newCountry = generateNewData(country.Confirmed, country.Recovered, country.Deaths);
+    const newData = generateNewData(country.Confirmed, country.Recovered, country.Deaths);
     return {
-      // country: country.Country,
-      // countryCode: country.CountryCode,
-      // slug,
       confirmed: country.Confirmed,
       recovered: country.Recovered,
       deaths: country.Deaths,
-      closed: newCountry.closed,
-      active: newCountry.active,
-      recoveredPercent: newCountry.recoveredPercent,
-      deathsPercent: newCountry.deathsPercent,
+      closed: newData.closed,
+      active: newData.active,
+      recoveredPercent: newData.recoveredPercent,
+      deathsPercent: newData.deathsPercent,
       date: country.Date
     };
   });
 
-  res.json({
+  return {
     country: countries[0].Country,
     countryCode: countries[0].CountryCode,
     slug,
@@ -128,7 +127,7 @@ getSpecifyCountry = async (req, res, next) => {
     totalDeathsPercent: newCountries[newCountries.length - 1].deathsPercent,                
     date: countries[countries.length - 1].Date,
     history: newCountries
-  });
+  };  
 }
 
 module.exports.getSummary = getSummary;

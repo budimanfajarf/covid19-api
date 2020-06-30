@@ -1,4 +1,4 @@
-info = (req, res, next) => {
+getInfo = (req, res, next) => {
   res.json({
     Formula: {
       TotalConfirmed: "Default",
@@ -12,4 +12,4 @@ info = (req, res, next) => {
   });
 }
 
-module.exports.info = info;
+module.exports.getInfo = getInfo;
