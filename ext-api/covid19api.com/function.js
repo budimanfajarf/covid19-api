@@ -1,57 +1,3 @@
-const covid19Api = require('../apis/covid19api.com');
-
-getSummary = async (req, res, next) => {
-  const { Global, Countries } = await covid19Api.getApiSummaryWithGlobalDate();
-  const newGlobal = generateGlobal(Global);
-  const newCountries = generateCountries(Countries);
-
-  res.json({
-    global: newGlobal,
-    countries: newCountries
-  });
-};
-
-getGlobal = () => {
-  return new Promise((resolve, reject) => {
-    covid19Api.getApiSummaryWithGlobalDate()
-    .then((data) => {
-      const newGlobal = generateGlobal(data.Global);
-      resolve(newGlobal);       
-    })
-    .catch((err) => reject(err));    
-  });
-};
-
-getCountries = async (req, res, next) => {
-  const { Countries } = await covid19Api.getApiSummary();
-  const newCountries = generateCountries(Countries);
-
-  res.json(newCountries);
-}
-
-getSpecifyCountry =  (slug, from, to) => {
-  return new Promise((resolve, reject) => {
-    let specifyCountry;
-  
-    if (from && to) {
-      covid19Api.getApiByCountryAllStatus(slug, from, to)
-      .then((data) => {
-        specifyCountry = generateSpecifyCountry(data, slug);
-        resolve(specifyCountry);       
-      })
-      .catch((err) => reject(err));       
-    }
-    else {
-      covid19Api.getApiDayOneAllStatus(slug)
-      .then((data) => {
-        specifyCountry = generateSpecifyCountry(data, slug);
-        resolve(specifyCountry);       
-      })
-      .catch((err) => reject(err));            
-    } 
-  });
-}
-
 calculatePercentOf = (number, ofNumber) => {
   return Math.round((number/ofNumber)*100);
 };
@@ -80,7 +26,7 @@ generateGlobal = (global) => {
 }
 
 generateCountries = (countries) => {
-  countries.map((country) => {
+  return countries.map((country) => {
     const newData = generateNewData(country.TotalConfirmed, country.TotalRecovered, country.TotalDeaths);
     return {
       country: country.Country,
@@ -96,10 +42,9 @@ generateCountries = (countries) => {
       date: country.Date      
     };
   });
-  return countries;
 };
 
-generateSpecifyCountry = (countries, slug) => {
+generateDetailCountry = (countries, slug) => {
   const newCountries = countries.map((country) => {
     const newData = generateNewData(country.Confirmed, country.Recovered, country.Deaths);
     return {
@@ -130,7 +75,6 @@ generateSpecifyCountry = (countries, slug) => {
   };  
 }
 
-module.exports.getSummary = getSummary;
-module.exports.getGlobal = getGlobal;
-module.exports.getCountries = getCountries;
-module.exports.getSpecifyCountry = getSpecifyCountry;
+module.exports.generateGlobal = generateGlobal;
+module.exports.generateCountries = generateCountries;
+module.exports.generateDetailCountry = generateDetailCountry;
