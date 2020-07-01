@@ -48,13 +48,13 @@ generateCountry = (countryLogs, slug) => {
   const newCountryLogs = countryLogs.map((country) => {
     const newData = generateNewData(country.Confirmed, country.Recovered, country.Deaths);
     return {
-      confirmed: country.Confirmed,
-      recovered: country.Recovered,
-      deaths: country.Deaths,
-      closed: newData.closed,
-      active: newData.active,
-      recoveredPercent: newData.recoveredPercent,
-      deathsPercent: newData.deathsPercent,
+      totalConfirmed: country.Confirmed,
+      totalRecovered: country.Recovered,
+      totalDeaths: country.Deaths,
+      totalClosed: newData.closed,
+      totalActive: newData.active,
+      totalRecoveredPercent: newData.recoveredPercent,
+      totalDeathsPercent: newData.deathsPercent,
       date: country.Date
     };
   });
@@ -67,13 +67,13 @@ generateCountry = (countryLogs, slug) => {
     country: countryLogs[0].Country,
     countryCode: countryLogs[0].CountryCode,
     slug,
-    totalConfirmed: sortedNewCountryLogs[0].confirmed,
-    totalRecovered: sortedNewCountryLogs[0].recovered,
-    totalDeaths: sortedNewCountryLogs[0].deaths,        
-    totalClosed: sortedNewCountryLogs[0].closed,
-    totalActive: sortedNewCountryLogs[0].active,
-    totalRecoveredPercent: sortedNewCountryLogs[0].recoveredPercent,
-    totalDeathsPercent: sortedNewCountryLogs[0].deathsPercent,                
+    totalConfirmed: sortedNewCountryLogs[0].totalConfirmed,
+    totalRecovered: sortedNewCountryLogs[0].totalRecovered,
+    totalDeaths: sortedNewCountryLogs[0].totalDeaths,        
+    totalClosed: sortedNewCountryLogs[0].totalClosed,
+    totalActive: sortedNewCountryLogs[0].totalActive,
+    totalRecoveredPercent: sortedNewCountryLogs[0].totalRecoveredPercent,
+    totalDeathsPercent: sortedNewCountryLogs[0].totalDeathsPercent,                
     date: sortedNewCountryLogs[0].date,
     history: sortedNewCountryLogs
   };  

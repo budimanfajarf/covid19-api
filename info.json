@@ -1,5 +1,5 @@
 {
-  "name": "BDV Simple Covid19-API",
+  "name": "BDV Simple COVID19-API",
   "version": "1.0.1",
   "baseUrl": "https://api.covid19.budidev.com",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "git+https://github.com/budimanfajarf/covid19-api.git"
   },
   "documentation": {
-    "url": ""
+    "url": "https://documenter.getpostman.com/view/11864120/T17DgUSe?version=latest"
   },
   "bugs": {
     "url": "https://github.com/budimanfajarf/covid19-api/issues"
