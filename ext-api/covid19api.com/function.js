@@ -15,12 +15,15 @@ generateGlobal = (global) => {
   const newData = generateNewData(global.TotalConfirmed, global.TotalRecovered, global.TotalDeaths);
   return {
     totalConfirmed: global.TotalConfirmed,
-    totalRecovered: global.TotalRecovered,
-    totalDeaths: global.TotalDeaths,
-    totalClosed: newData.closed,
     totalActive: newData.active,
+    // totalClosed: newData.closed,
+    totalRecovered: global.TotalRecovered,
     totalRecoveredPercent: newData.recoveredPercent,
+    totalDeaths: global.TotalDeaths,
     totalDeathsPercent: newData.deathsPercent,
+    newConfirmed: global.NewConfirmed,
+    newRecovered: global.NewRecovered,
+    newDeaths: global.NewDeaths,
     date: global.Date
   }  
 }
@@ -33,28 +36,43 @@ generateCountries = (countries) => {
       countryCode: country.CountryCode,
       slug: country.Slug,
       totalConfirmed: country.TotalConfirmed,
-      totalRecovered: country.TotalRecovered,
-      totalDeaths: country.TotalDeaths,
-      totalClosed: newData.closed,
       totalActive: newData.active,
+      // totalClosed: newData.closed,
+      totalRecovered: country.TotalRecovered,
       totalRecoveredPercent: newData.recoveredPercent,
+      totalDeaths: country.TotalDeaths,
       totalDeathsPercent: newData.deathsPercent,
+      newConfirmed: country.NewConfirmed,
+      newRecovered: country.NewRecovered,
+      newDeaths: country.NewDeaths,
       date: country.Date      
     };
   });
 };
 
-generateCountry = (countryLogs, slug) => {
-  const newCountryLogs = countryLogs.map((country) => {
+generateCountryHistories = (countryLogs, slug) => {
+  const newCountryLogs = countryLogs.map((country, idx) => {
     const newData = generateNewData(country.Confirmed, country.Recovered, country.Deaths);
+
+    // let newConfirmed = newRecovered = newDeaths = null;
+    
+    // if (countryLogs[idx+1]) {
+    //   newConfirmed = countryLogs[idx+1].Confirmed - country.Confirmed;
+    //   newRecovered = countryLogs[idx+1].Recovered - country.Recovered;
+    //   newDeaths = countryLogs[idx+1].Deaths - country.Deaths;            
+    // }
+
     return {
       totalConfirmed: country.Confirmed,
-      totalRecovered: country.Recovered,
-      totalDeaths: country.Deaths,
-      totalClosed: newData.closed,
       totalActive: newData.active,
+      // totalClosed: newData.closed,
+      totalRecovered: country.Recovered,
       totalRecoveredPercent: newData.recoveredPercent,
+      totalDeaths: country.Deaths,
       totalDeathsPercent: newData.deathsPercent,
+      // newConfirmed,
+      // newRecovered,
+      // newDeaths,
       date: country.Date
     };
   });
@@ -62,23 +80,12 @@ generateCountry = (countryLogs, slug) => {
   const sortedNewCountryLogs = newCountryLogs.sort((a,b) => {
       return new Date(b.date) - new Date(a.date);
   });
+  
+  // sortedNewCountryLogs.shift(); 
 
-  return {
-    country: countryLogs[0].Country,
-    countryCode: countryLogs[0].CountryCode,
-    slug,
-    totalConfirmed: sortedNewCountryLogs[0].totalConfirmed,
-    totalRecovered: sortedNewCountryLogs[0].totalRecovered,
-    totalDeaths: sortedNewCountryLogs[0].totalDeaths,        
-    totalClosed: sortedNewCountryLogs[0].totalClosed,
-    totalActive: sortedNewCountryLogs[0].totalActive,
-    totalRecoveredPercent: sortedNewCountryLogs[0].totalRecoveredPercent,
-    totalDeathsPercent: sortedNewCountryLogs[0].totalDeathsPercent,                
-    date: sortedNewCountryLogs[0].date,
-    history: sortedNewCountryLogs
-  };  
+  return sortedNewCountryLogs;
 }
 
 module.exports.generateGlobal = generateGlobal;
 module.exports.generateCountries = generateCountries;
-module.exports.generateCountry = generateCountry;
+module.exports.generateCountryHistories = generateCountryHistories;

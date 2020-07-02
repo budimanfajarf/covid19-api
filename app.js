@@ -6,7 +6,7 @@ const logger = require('morgan');
 const { notFound, errorHandler } = require('./middleware/error');
 
 const mainRouter = require('./routes/main');
-const countryRouter = require('./routes/countries');
+const v1Router = require('./routes/v1');
 
 const app = express();
 
@@ -17,7 +17,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', mainRouter);
-app.use('/countries', countryRouter);
+app.use('/v1', v1Router);
 app.use(notFound);
 app.use(errorHandler);
 
