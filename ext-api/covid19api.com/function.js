@@ -16,7 +16,7 @@ generateGlobal = (global) => {
   return {
     totalConfirmed: global.TotalConfirmed,
     totalActive: newData.active,
-    // totalClosed: newData.closed,
+    totalClosed: newData.closed,
     totalRecovered: global.TotalRecovered,
     totalRecoveredPercent: newData.recoveredPercent,
     totalDeaths: global.TotalDeaths,
@@ -37,7 +37,7 @@ generateCountries = (countries) => {
       slug: country.Slug,
       totalConfirmed: country.TotalConfirmed,
       totalActive: newData.active,
-      // totalClosed: newData.closed,
+      totalClosed: newData.closed,
       totalRecovered: country.TotalRecovered,
       totalRecoveredPercent: newData.recoveredPercent,
       totalDeaths: country.TotalDeaths,
@@ -53,26 +53,15 @@ generateCountries = (countries) => {
 generateCountryHistories = (countryLogs, slug) => {
   const newCountryLogs = countryLogs.map((country, idx) => {
     const newData = generateNewData(country.Confirmed, country.Recovered, country.Deaths);
-
-    // let newConfirmed = newRecovered = newDeaths = null;
-    
-    // if (countryLogs[idx+1]) {
-    //   newConfirmed = countryLogs[idx+1].Confirmed - country.Confirmed;
-    //   newRecovered = countryLogs[idx+1].Recovered - country.Recovered;
-    //   newDeaths = countryLogs[idx+1].Deaths - country.Deaths;            
-    // }
-
     return {
+      country: country.Country,
       totalConfirmed: country.Confirmed,
       totalActive: newData.active,
-      // totalClosed: newData.closed,
+      totalClosed: newData.closed,
       totalRecovered: country.Recovered,
       totalRecoveredPercent: newData.recoveredPercent,
       totalDeaths: country.Deaths,
       totalDeathsPercent: newData.deathsPercent,
-      // newConfirmed,
-      // newRecovered,
-      // newDeaths,
       date: country.Date
     };
   });
@@ -81,7 +70,7 @@ generateCountryHistories = (countryLogs, slug) => {
       return new Date(b.date) - new Date(a.date);
   });
   
-  // sortedNewCountryLogs.shift(); 
+  sortedNewCountryLogs.shift(); 
 
   return sortedNewCountryLogs;
 }

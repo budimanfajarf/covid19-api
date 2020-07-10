@@ -10,12 +10,14 @@ getSummary = () => {
 
       const summaryGlobal = global;
         delete summaryGlobal.totalActive;
+        delete summaryGlobal.totalClosed;        
         delete summaryGlobal.totalRecoveredPercent;
         delete summaryGlobal.totalDeathsPercent;
 
       const summaryCountries = countries.map((country) => {
         delete country.countryCode;
         delete country.totalActive;
+        delete country.totalClosed;        
         delete country.totalRecoveredPercent;
         delete country.totalDeathsPercent;
         return country;
@@ -56,14 +58,24 @@ getCountries = () => {
       resolve(listCountries);       
     })
     .catch((err) => reject(err));   
-    // apiCountries()
-    // .then((data) => {
-    //   resolve(data);
-    // })
-    // .catch((err) => reject(err));  
+
+/* another approach    
+    apiCountries()
+    .then((data) => {
+      resolve(data);
+    })
+    .catch((err) => reject(err)); 
+*/
   });
 }
 
+/*
+ERROR FROM SOURCE API
+  {
+    "status": 429,
+    "message": "Too Many Requests"
+  }
+  
 getCountry = (slug) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -98,8 +110,46 @@ getCountry = (slug) => {
     }   
   });
 }
+*/
+
+getCountry = (slug) => {
+  return new Promise((resolve, reject) => {
+    apiSummary()
+    .then((data) => {
+      const countries = generateCountries(data.Countries);
+
+      const filteredCountries = countries.filter((country) => {
+        return country.slug == slug;
+      });
+
+      if (filteredCountries.length == 0) {
+        return reject({
+          response: {
+            status: 404,
+            statusText: 'Country Not Found'
+          }
+        });
+      }
+      const country = filteredCountries[0];
+      resolve(country);
+    })
+    .catch(err => reject (err));
+  });
+}
+
+getCountryHistories = (slug) => {
+  return new Promise((resolve, reject) => {
+    apiDayOneAllStatus(slug)
+    .then((data) => {
+      const countryHistories = generateCountryHistories(data, slug);
+      resolve(countryHistories);
+    })
+    .catch(err => reject (err));
+  });
+}
 
 module.exports.getSummary = getSummary;
 module.exports.getGlobal = getGlobal;
 module.exports.getCountries = getCountries;
 module.exports.getCountry = getCountry;
+module.exports.getCountryHistories = getCountryHistories;
